@@ -1,6 +1,8 @@
 package com.shop.backend.controller;
 
+import com.shop.backend.dto.LoginRequest;
 import com.shop.backend.dto.SignupRequest;
+import com.shop.backend.response.LoginResponse;
 import com.shop.backend.response.SignupResponse;
 import com.shop.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,17 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
         SignupResponse response = userService.signup(request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
         return ResponseEntity.ok(response);
     }
 }
