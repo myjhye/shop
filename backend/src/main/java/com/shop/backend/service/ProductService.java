@@ -51,8 +51,11 @@ public class ProductService {
     }
 
     // 상품 전체 조회
-    public Page<ProductResponse> findAll(Pageable pageable) {
-        Page<Product> productPage = productRepository.findAll(pageable);
+    public Page<ProductResponse> findAll(String category, Integer minPrice, Integer maxPrice, Pageable pageable) {
+        // category가 'all'이면 null로 취급하여 전체 카테고리를 검색하도록 함
+        String filterCategory = (category != null && category.equals("all")) ? null : category;
+
+        Page<Product> productPage = productRepository.findWithFilters(filterCategory, minPrice, maxPrice, pageable);
 
         return productPage.map(product -> new ProductResponse(
                 product.getId(),

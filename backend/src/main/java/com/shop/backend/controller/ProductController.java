@@ -43,8 +43,12 @@ public class ProductController {
 
     // 상품 전체 조회
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> getAllProducts(Pageable pageable) {
-        Page<ProductResponse> products = productService.findAll(pageable);
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Integer minPrice, // 최소 가격
+            @RequestParam(required = false) Integer maxPrice, // 최대 가격
+            Pageable pageable) {
+        Page<ProductResponse> products = productService.findAll(category, minPrice, maxPrice, pageable);
         return ResponseEntity.ok(products);
     }
 
