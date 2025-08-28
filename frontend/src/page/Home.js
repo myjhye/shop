@@ -13,10 +13,12 @@ export default function Home() {
         setIsLoading(true);
         const response = await api.get('/api/products');
         setProducts(response.data);
-      } catch (err) {
+      } 
+      catch (err) {
         setError('상품 목록을 불러오는 데 실패했습니다.');
         console.error(err);
-      } finally {
+      } 
+      finally {
         setIsLoading(false);
       }
     };
