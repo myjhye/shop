@@ -1,6 +1,7 @@
 # Backend (Spring Boot)
 backend/target/
 backend/.idea/
+backend/.env/
 *.iml
 
 # Frontend (React)
