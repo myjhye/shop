@@ -2,41 +2,75 @@ import { useState, useEffect } from 'react';
 import api from '../api/config';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
+import { CATEGORIES, PRICE_RANGES } from '../constants/categories';
 
 export default function Home() {
   const [pageData, setPageData] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState('all'); // 선택된 카테고리
+  const [selectedPrice, setSelectedPrice] = useState('all'); // 선택된 가격 범위
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-        // API 호출 시 page와 size 파라미터를 추가
-        const response = await api.get('/api/products', {
-          params: {
-            page: currentPage,
-            size: ITEMS_PER_PAGE,
-            sort: 'createdAt,desc' // 최신순으로 정렬
+        const params = {
+          page: currentPage,
+          size: ITEMS_PER_PAGE,
+          sort: 'createdAt,desc'
+        };
+
+        if (selectedCategory !== 'all') {
+          params.category = selectedCategory;
+        }
+
+        // 선택된 가격 범위에 따라 minPrice, maxPrice 파라미터 추가
+        if (selectedPrice !== 'all') {
+          const range = PRICE_RANGES.find(r => r.key === selectedPrice);
+          if (range) {
+            if (range.min !== undefined) params.minPrice = range.min;
+            if (range.max !== undefined) params.maxPrice = range.max;
           }
-        });
-        setPageData(response.data); // 응답 객체 전체를 상태에 저장
-      } catch (err) {
+        }
+        
+        const response = await api.get('/api/products', { params });
+        setPageData(response.data);
+      } 
+      catch (err) {
         setError('상품 목록을 불러오는 데 실패했습니다.');
-        console.error(err);
-      } finally {
+      } 
+      finally {
         setIsLoading(false);
       }
     };
 
     fetchProducts();
-  }, [currentPage]); // currentPage가 변경될 때마다 API를 다시 호출
+  }, [currentPage, selectedCategory, selectedPrice]); // selectedPrice 의존성 추가
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+
+  // 카테고리 필터 변경 핸들러
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    setCurrentPage(0); // 카테고리 변경 시 첫 페이지로 리셋
+  };
+
+  // 가격 필터 변경 핸들러
+  const handlePriceChange = (priceKey) => {
+    setSelectedPrice(priceKey);
+    setCurrentPage(0); // 가격 필터 변경 시 첫 페이지로 리셋
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory('all');
+    setSelectedPrice('all');
+    setCurrentPage(0);
   };
 
   if (isLoading) {
@@ -56,45 +90,117 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       {/* --- 헤더 섹션 --- */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900">
-            온라인 쇼핑몰
+        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+            Our Products
           </h1>
-          <p className="mt-4 text-xl text-gray-600">
-            최고의 상품을 합리적인 가격에 만나보세요
+          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+            최고의 상품을 합리적인 가격에 만나보세요.
           </p>
         </div>
       </div>
 
-      {/* --- 상품 목록 섹션 --- */}
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">전체 상품</h2>
-        {pageData && pageData.content.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {/* pageData.content가 실제 상품 목록 배열 */}
-              {pageData.content.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+      <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-x-8">
+          {/* --- 필터 사이드바 (데스크탑) --- */}
+          <aside className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-8 space-y-8 bg-white p-6 rounded-2xl shadow-md">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">필터</h2>
+                <button 
+                  onClick={handleResetFilters}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                >
+                  초기화
+                </button>
+              </div>
+
+              {/* 카테고리 필터 */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">카테고리</h3>
+                <ul className="space-y-2">
+                  <li>
+                    <button onClick={() => handleCategoryChange('all')} className={`w-full text-left ${selectedCategory === 'all' ? 'font-bold text-blue-600' : 'text-gray-600 hover:text-black'}`}>전체</button>
+                  </li>
+                  {CATEGORIES.map(cat => (
+                    <li key={cat}>
+                      <button onClick={() => handleCategoryChange(cat)} className={`w-full text-left ${selectedCategory === cat ? 'font-bold text-blue-600' : 'text-gray-600 hover:text-black'}`}>{cat}</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <hr className="border-gray-200" />
+
+              {/* 가격 필터 */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">가격대</h3>
+                <ul className="space-y-2">
+                  {PRICE_RANGES.map(range => (
+                    <li key={range.key}>
+                      <button onClick={() => handlePriceChange(range.key)} className={`w-full text-left ${selectedPrice === range.key ? 'font-bold text-blue-600' : 'text-gray-600 hover:text-black'}`}>{range.label}</button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </aside>
+
+          {/* --- 상품 그리드 영역 --- */}
+          <div className="lg:col-span-3">
+            {/* 필터 (모바일) */}
+            <div className="lg:hidden bg-white p-4 rounded-xl shadow-md mb-8 space-y-4">
+               {/* 모바일용 필터 UI... (간략화된 버전 또는 드롭다운으로 구현 가능) */}
+               <details>
+                 <summary className="font-semibold cursor-pointer">필터 열기</summary>
+                 <div className="mt-4 space-y-4">
+                    {/* 카테고리 필터 */}
+                    <div>
+                      <h3 className="text-md font-semibold text-gray-800 mb-2">카테고리</h3>
+                      <div className="flex flex-wrap gap-2">
+                        <button onClick={() => handleCategoryChange('all')} className={`px-3 py-1.5 text-xs rounded-full ${selectedCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}># 전체</button>
+                        {CATEGORIES.map(cat => <button key={cat} onClick={() => handleCategoryChange(cat)} className={`px-3 py-1.5 text-xs rounded-full ${selectedCategory === cat ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}># {cat}</button>)}
+                      </div>
+                    </div>
+                    {/* 가격 필터 */}
+                    <div>
+                      <h3 className="text-md font-semibold text-gray-800 mb-2">가격대</h3>
+                       <div className="flex flex-wrap gap-2">
+                        {PRICE_RANGES.map(range => <button key={range.key} onClick={() => handlePriceChange(range.key)} className={`px-3 py-1.5 text-xs rounded-full ${selectedPrice === range.key ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-800'}`}>{range.label}</button>)}
+                      </div>
+                    </div>
+                 </div>
+               </details>
             </div>
 
-            {pageData.totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={pageData.totalPages}
-                onPageChange={handlePageChange}
-              />
+            {/* 상품 개수 헤더 */}
+            <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">상품 목록</h2>
+              {pageData && <span className="text-sm text-gray-600">총 {pageData.totalElements}개</span>}
+            </div>
+
+            {pageData && pageData.content.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {pageData.content.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                {pageData.totalPages > 1 && (
+                  <Pagination currentPage={currentPage} totalPages={pageData.totalPages} onPageChange={handlePageChange} />
+                )}
+              </>
+            ) : (
+              <div className="text-center py-20">
+                <p className="text-xl text-gray-500">조건에 맞는 상품이 없습니다.</p>
+              </div>
             )}
-          </>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-xl text-gray-500">등록된 상품이 없습니다.</p>
           </div>
-        )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
