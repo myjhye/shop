@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -41,8 +43,8 @@ public class ProductController {
 
     // 상품 전체 조회
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productService.findAll();
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(Pageable pageable) {
+        Page<ProductResponse> products = productService.findAll(pageable);
         return ResponseEntity.ok(products);
     }
 

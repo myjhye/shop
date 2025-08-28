@@ -9,6 +9,8 @@ import com.shop.backend.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,20 +51,18 @@ public class ProductService {
     }
 
     // 상품 전체 조회
-    public List<ProductResponse> findAll() {
-        List<Product> products = productRepository.findAll();
+    public Page<ProductResponse> findAll(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(pageable);
 
-        return products.stream()
-                .map(product -> new ProductResponse(
-                        product.getId(),
-                        product.getName(),
-                        product.getPrice(),
-                        product.getDescription(),
-                        product.getStock(),
-                        product.getThumbnail(),
-                        product.getCategory()
-                ))
-                .collect(Collectors.toList());
+        return productPage.map(product -> new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                product.getDescription(),
+                product.getStock(),
+                product.getThumbnail(),
+                product.getCategory()
+        ));
     }
 
 
