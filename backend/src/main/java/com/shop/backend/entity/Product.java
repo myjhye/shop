@@ -29,8 +29,8 @@ public class Product {
     @Column(nullable = false)
     private int stock; // 재고 수량
 
-    @Column(nullable = false)
-    private String thumbnail; // 썸네일 파일 경로
+    @Column(length = 500)
+    private String thumbnail;
 
     @Column(nullable = false, length = 50)
     private String category;
