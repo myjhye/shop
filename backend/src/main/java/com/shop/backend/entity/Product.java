@@ -32,6 +32,9 @@ public class Product {
     @Column(nullable = false)
     private String thumbnail; // 썸네일 파일 경로
 
+    @Column(nullable = false, length = 50)
+    private String category;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User createdBy;

@@ -46,6 +46,7 @@ public class ProductService {
                 .price(request.getPrice())
                 .description(request.getDescription())
                 .stock(request.getStock())
+                .category(request.getCategory())
                 .thumbnail(filename)
                 .createdBy(user)
                 .build();
@@ -58,7 +59,8 @@ public class ProductService {
                 saved.getPrice(),
                 saved.getDescription(),
                 saved.getStock(),
-                saved.getThumbnail()
+                saved.getThumbnail(),
+                saved.getCategory()
         );
     }
 }

@@ -9,4 +9,5 @@ public class ProductRequest {
     private int price;
     private String description;
     private int stock;
+    private String category;
 }
