@@ -32,6 +32,12 @@ export default function Navbar() {
             {isLoggedIn ? (
               // 로그인된 상태
               <>
+                <Link
+                  to="/add-product"
+                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  상품 등록
+                </Link>
                 <span className="text-gray-700 px-3 py-2 text-base">
                   안녕하세요, <span className="text-blue-500">{user?.username}</span>님
                 </span>
