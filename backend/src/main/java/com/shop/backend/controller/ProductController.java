@@ -45,4 +45,11 @@ public class ProductController {
         List<ProductResponse> products = productService.findAll();
         return ResponseEntity.ok(products);
     }
+
+    // 상품 상세 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
+        ProductResponse product = productService.findById(id);
+        return ResponseEntity.ok(product);
+    }
 }

@@ -3,6 +3,7 @@ package com.shop.backend.service;
 import com.shop.backend.dto.ProductRequest;
 import com.shop.backend.entity.Product;
 import com.shop.backend.entity.User;
+import com.shop.backend.exception.ResourceNotFoundException;
 import com.shop.backend.repository.ProductRepository;
 import com.shop.backend.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CloudinaryService cloudinaryService;
 
+    // 상품 등록
     public ProductResponse create(ProductRequest request, MultipartFile thumbnailFile, User user) {
         // Cloudinary에 이미지 업로드
         String imageUrl = cloudinaryService.uploadFile(thumbnailFile);
@@ -46,6 +48,7 @@ public class ProductService {
         );
     }
 
+    // 상품 전체 조회
     public List<ProductResponse> findAll() {
         List<Product> products = productRepository.findAll();
 
@@ -60,5 +63,25 @@ public class ProductService {
                         product.getCategory()
                 ))
                 .collect(Collectors.toList());
+    }
+
+
+    // 상품 상세 조회
+    public ProductResponse findById(Long id) {
+        // 1. id를 이용하여 Product 엔티티를 조회합니다.
+        Product product = productRepository.findById(id)
+                // 2. 만약 해당 id의 상품이 없다면 예외를 발생시킵니다.
+                .orElseThrow(() -> new ResourceNotFoundException("해당 상품을 찾을 수 없습니다. id=" + id));
+
+        // 3. 조회된 엔티티를 DTO로 변환하여 반환합니다.
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                product.getDescription(),
+                product.getStock(),
+                product.getThumbnail(),
+                product.getCategory()
+        );
     }
 }
