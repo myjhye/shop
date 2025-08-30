@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/config';
+import { CartIcon, MinusIcon, PlusIcon } from '../components/Icons';
 
 // 가격을 원화 형식으로 포맷하는 함수
 const formatPrice = (price) => {
@@ -8,24 +10,16 @@ const formatPrice = (price) => {
   return new Intl.NumberFormat('ko-KR').format(price);
 };
 
-// SVG 아이콘 컴포넌트들
-const MinusIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"></path></svg>
-);
-const PlusIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v12m6-6H6"></path></svg>
-);
-const CartIcon = () => (
-  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-);
-
-
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1); // 수량
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const { user, isLoggedIn } = useAuth();  // 인증 정보 가져오기
+  const token = user?.token;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -50,6 +44,35 @@ export default function ProductDetail() {
     const newQuantity = quantity + amount;
     if (newQuantity >= 1 && newQuantity <= product.stock) {
       setQuantity(newQuantity);
+    }
+  };
+
+  // 장바구니 추가 핸들러
+  const handleAddToCart = async () => {
+    if (!isLoggedIn) {
+      alert("로그인이 필요합니다.");
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await api.post('/api/cart/items', 
+        {
+          productId: id,
+          quantity: quantity,
+        },
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (window.confirm("장바구니에 상품이 담겼습니다. 장바구니로 이동하시겠습니까?")) {
+        navigate('/cart');
+      }
+
+    } catch (err) {
+      console.error("장바구니 추가 오류:", err);
+      alert(err.response?.data?.message || "장바구니 추가에 실패했습니다.");
     }
   };
 
@@ -143,6 +166,7 @@ export default function ProductDetail() {
             {/* 구매 버튼 */}
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <button
+                onClick={handleAddToCart}
                 disabled={product.stock === 0}
                 className="flex items-center justify-center px-8 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400"
               >

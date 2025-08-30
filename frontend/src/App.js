@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './page/Home';
@@ -25,6 +25,8 @@ export default function App() {
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/add-product" element={<AddProduct />} />
             <Route path="/edit-product/:id" element={<EditProduct />} />
+            
+            <Route path="/cart" element={<Navigate to="/mypage?tab=cart" replace />} />
           </Routes>
         </div>
       </Router>
