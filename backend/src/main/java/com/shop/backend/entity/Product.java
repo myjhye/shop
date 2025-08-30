@@ -1,5 +1,6 @@
 package com.shop.backend.entity;
 
+import com.shop.backend.dto.ProductRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,11 +36,43 @@ public class Product {
     @Column(nullable = false, length = 50)
     private String category;
 
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    // 다대일(N:1) 관계. 여러 상품(N)은 한 명의 사용자(1)에 의해 생성될 수 있다
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User createdBy;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    // 상품 등록
+    public static Product createProduct(ProductRequest request, String imageUrl, User user) {
+        return Product.builder()
+                .name(request.getName())
+                .price(request.getPrice())
+                .description(request.getDescription())
+                .stock(request.getStock())
+                .category(request.getCategory())
+                .thumbnail(imageUrl)
+                .createdBy(user)
+                .build();
+    }
+
+    // 상품 수정
+    public void update(ProductRequest request, String newImageUrl) {
+        this.name = request.getName();
+        this.price = request.getPrice();
+        this.description = request.getDescription();
+        this.stock = request.getStock();
+        this.category = request.getCategory();
+
+        if (newImageUrl != null) { // 새 이미지 URL이 있을 경우에만 변경
+            this.thumbnail = newImageUrl;
+        }
+    }
+
+    // 해당 상품의 소유자인지 확인
+    public boolean isOwnedBy(User user) {
+        return this.createdBy.getId().equals(user.getId());
+    }
 
 }

@@ -22,19 +22,9 @@ public class ProductService {
 
     // 상품 등록
     public ProductResponse create(ProductRequest request, MultipartFile thumbnailFile, User user) {
-        // Cloudinary에 이미지 업로드
-        String imageUrl = cloudinaryService.uploadFile(thumbnailFile);
 
-        Product product = Product.builder()
-                .name(request.getName())
-                .price(request.getPrice())
-                .description(request.getDescription())
-                .stock(request.getStock())
-                .category(request.getCategory())
-                .thumbnail(imageUrl) // Cloudinary URL 저장
-                .createdBy(user)
-                .build();
-
+        String imageUrl = cloudinaryService.uploadFile(thumbnailFile); // Cloudinary에 이미지 업로드
+        Product product = Product.createProduct(request, imageUrl, user);
         Product saved = productRepository.save(product);
 
         return new ProductResponse(
@@ -45,7 +35,7 @@ public class ProductService {
                 saved.getStock(),
                 saved.getThumbnail(),
                 saved.getCategory(),
-                product.getCreatedAt()
+                saved.getCreatedAt()
         );
     }
 
@@ -111,23 +101,18 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 상품을 찾을 수 없습니다. id=" + productId));
 
         // 2. 권한 검사: 상품을 등록한 사용자와 현재 로그인한 사용자가 같은지 확인합니다.
-        if (!product.getCreatedBy().getId().equals(user.getId())) {
+        if (!product.isOwnedBy(user)) {
             throw new AccessDeniedException("상품을 수정할 권한이 없습니다.");
         }
 
         // 3. 썸네일 파일이 새로 첨부된 경우에만 Cloudinary에 업로드하고 URL을 교체합니다.
+        String newImageUrl = null;
         if (thumbnailFile != null && !thumbnailFile.isEmpty()) {
-            // (선택) 기존 이미지 Cloudinary에서 삭제 로직 추가 가능
-            String newImageUrl = cloudinaryService.uploadFile(thumbnailFile);
-            product.setThumbnail(newImageUrl);
+            newImageUrl = cloudinaryService.uploadFile(thumbnailFile);
         }
 
         // 4. DTO에 담겨온 정보로 상품 엔티티의 내용을 업데이트합니다.
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        product.setDescription(request.getDescription());
-        product.setStock(request.getStock());
-        product.setCategory(request.getCategory());
+        product.update(request, newImageUrl);
 
         // 5. 수정된 상품 정보를 DB에 저장(flush)하고, DTO로 변환하여 반환합니다.
         Product updatedProduct = productRepository.save(product);
@@ -150,7 +135,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 상품을 찾을 수 없습니다. id=" + productId));
 
         // 권한 검사
-        if (!product.getCreatedBy().getId().equals(user.getId())) {
+        if (!product.isOwnedBy(user)) {
             throw new AccessDeniedException("상품을 삭제할 권한이 없습니다.");
         }
 

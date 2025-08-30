@@ -29,13 +29,7 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        User user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword())) // 암호화
-                .email(request.getEmail())
-                .role("USER")
-                .build();
-
+        User user = User.createUser(request, passwordEncoder);
         User savedUser = userRepository.save(user);
 
         // DTO 변환 후 반환
@@ -51,7 +45,7 @@ public class UserService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("아이디가 존재하지 않습니다."));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!user.matchesPassword(request.getPassword(), passwordEncoder)) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
