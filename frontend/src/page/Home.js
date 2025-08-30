@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import api from '../api/config';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
-import { CATEGORIES, PRICE_RANGES } from '../constants/categories';
+import { CATEGORIES, PRICE_RANGES, SORT_OPTIONS } from '../constants/options';
 
 export default function Home() {
   const [pageData, setPageData] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('all'); // 선택된 카테고리
   const [selectedPrice, setSelectedPrice] = useState('all'); // 선택된 가격 범위
+  const [sort, setSort] = useState(SORT_OPTIONS[0].value); // 정렬
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,7 +22,7 @@ export default function Home() {
         const params = {
           page: currentPage,
           size: ITEMS_PER_PAGE,
-          sort: 'createdAt,desc'
+          sort: sort,
         };
 
         if (selectedCategory !== 'all') {
@@ -49,7 +50,7 @@ export default function Home() {
     };
 
     fetchProducts();
-  }, [currentPage, selectedCategory, selectedPrice]); // selectedPrice 의존성 추가
+  }, [currentPage, selectedCategory, selectedPrice, sort]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -71,6 +72,12 @@ export default function Home() {
     setSelectedCategory('all');
     setSelectedPrice('all');
     setCurrentPage(0);
+  };
+
+  // 정렬 변경 핸들러
+  const handleSortChange = (e) => {
+    setSort(e.target.value);
+    setCurrentPage(0); // 정렬 기준 변경 시 첫 페이지로 리셋
   };
 
   if (isLoading) {
@@ -177,9 +184,22 @@ export default function Home() {
             </div>
 
             {/* 상품 개수 헤더 */}
-            <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">상품 목록</h2>
-              {pageData && <span className="text-sm text-gray-600">총 {pageData.totalElements}개</span>}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 pb-4 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 sm:mb-0">상품 목록</h2>
+              <div className="flex items-center space-x-4">
+                {pageData && <span className="text-sm text-gray-600">총 {pageData.totalElements}개</span>}
+                <select 
+                  value={sort}
+                  onChange={handleSortChange}
+                  className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  {SORT_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {pageData && pageData.content.length > 0 ? (
