@@ -38,6 +38,14 @@ export default function Navbar() {
                 >
                   상품 등록
                 </Link>
+
+                <Link
+                  to="/mypage"
+                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  마이페이지
+                </Link>
+                
                 <span className="text-gray-700 px-3 py-2 text-base">
                   안녕하세요, <span className="text-blue-500">{user?.username}</span>님
                 </span>
