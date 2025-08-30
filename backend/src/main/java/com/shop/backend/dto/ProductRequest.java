@@ -2,6 +2,7 @@ package com.shop.backend.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Getter @Setter
 public class ProductRequest {
@@ -10,4 +11,5 @@ public class ProductRequest {
     private String description;
     private int stock;
     private String category;
+    private LocalDateTime createdAt;
 }

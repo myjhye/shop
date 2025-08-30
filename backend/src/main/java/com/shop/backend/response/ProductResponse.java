@@ -2,6 +2,7 @@ package com.shop.backend.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -13,4 +14,5 @@ public class ProductResponse {
     private int stock;
     private String thumbnail;
     private String category;
+    private LocalDateTime createdAt;
 }

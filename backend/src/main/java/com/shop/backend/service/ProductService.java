@@ -12,9 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -46,7 +43,8 @@ public class ProductService {
                 saved.getDescription(),
                 saved.getStock(),
                 saved.getThumbnail(),
-                saved.getCategory()
+                saved.getCategory(),
+                product.getCreatedAt()
         );
     }
 
@@ -64,7 +62,8 @@ public class ProductService {
                 product.getDescription(),
                 product.getStock(),
                 product.getThumbnail(),
-                product.getCategory()
+                product.getCategory(),
+                product.getCreatedAt()
         ));
     }
 
@@ -84,7 +83,8 @@ public class ProductService {
                 product.getDescription(),
                 product.getStock(),
                 product.getThumbnail(),
-                product.getCategory()
+                product.getCategory(),
+                product.getCreatedAt()
         );
     }
 }
