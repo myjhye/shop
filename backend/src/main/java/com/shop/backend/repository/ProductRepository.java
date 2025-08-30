@@ -1,6 +1,7 @@
 package com.shop.backend.repository;
 
 import com.shop.backend.entity.Product;
+import com.shop.backend.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("maxPrice") Integer maxPrice,
             Pageable pageable
     );
+
+    // 특정 사용자가 생성한 상품 목록을 페이징하여 조회
+    Page<Product> findByCreatedBy(User user, Pageable pageable);
 }
