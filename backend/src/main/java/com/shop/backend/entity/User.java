@@ -42,6 +42,10 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
 
+    // 일대다(1:N) 관계. 한 명의 사용자(1)는 여러 리뷰(N)를 등록할 수 있다
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
     // 회원가입
     public static User createUser(SignupRequest request, BCryptPasswordEncoder passwordEncoder) {
         return User.builder()

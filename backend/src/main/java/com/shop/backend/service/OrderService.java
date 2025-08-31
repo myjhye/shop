@@ -24,6 +24,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository; // 장바구니 비우기를 위해 주입
 
+    // --- 주문 생성 ---
     public Order createOrder(OrderRequest orderRequest, User user) {
         // 1. 주문 상품(OrderItem) 리스트 생성
         List<OrderItem> orderItems = new ArrayList<>();
@@ -64,5 +65,13 @@ public class OrderService {
 
         // 2. Page.map 기능을 사용하여 Page<Order>를 Page<OrderResponse>로 변환한다
         return orderPage.map(OrderResponse::new);
+    }
+
+    // --- 구매 이력 확인 ---
+    @Transactional(readOnly = true)
+    public boolean hasPurchaseHistory(User user, Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("상품을 찾을 수 없습니다."));
+        return orderRepository.existsByUserAndProductInOrders(user, product);
     }
 }

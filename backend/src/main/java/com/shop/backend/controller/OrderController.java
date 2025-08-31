@@ -12,6 +12,8 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
@@ -19,6 +21,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    // --- 주문 생성 ---
     @PostMapping
     public ResponseEntity<?> createOrder(
             @RequestBody OrderRequest orderRequest,
@@ -36,5 +39,15 @@ public class OrderController {
                     .status(HttpStatus.CONFLICT) // 409 Conflict 상태 코드 반환
                     .body("다른 사용자의 주문과 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
+    }
+
+    // --- 구매 이력 확인 ---
+    @GetMapping("/check-purchase")
+    public ResponseEntity<Map<String, Boolean>> checkPurchase(
+            @RequestParam Long productId,
+            @AuthenticationPrincipal User user
+    ) {
+        boolean hasPurchased = orderService.hasPurchaseHistory(user, productId);
+        return ResponseEntity.ok(Map.of("hasPurchased", hasPurchased));
     }
 }

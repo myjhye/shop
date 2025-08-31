@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/{productId}/reviews").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/products/{productId}/reviews").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
