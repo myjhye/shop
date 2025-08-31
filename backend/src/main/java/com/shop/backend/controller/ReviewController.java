@@ -17,12 +17,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -49,5 +44,27 @@ public class ReviewController {
     ) {
         ReviewResponse reviewResponse = reviewService.createReview(productId, request, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewResponse);
+    }
+
+    // 특정 상품의 특정 리뷰 수정
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<ReviewResponse> updateReview(
+            @PathVariable Long reviewId,
+            @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        ReviewResponse updatedReview = reviewService.updateReview(reviewId, request, user);
+        return ResponseEntity.ok(updatedReview);
+    }
+
+    // 특정 상품의 특정 리뷰 삭제
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long productId,
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal User user
+    ) {
+        reviewService.deleteReview(reviewId, user);
+        return ResponseEntity.noContent().build();
     }
 }

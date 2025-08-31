@@ -65,4 +65,41 @@ public class ReviewService {
             return new ReviewResponse(review, hasPurchased);
         });
     }
+
+    // 리뷰 수정
+    public ReviewResponse updateReview(Long reviewId, ReviewRequest request, User user) {
+        // 1. 수정할 리뷰를 DB에서 조회
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("리뷰를 찾을 수 없습니다."));
+
+        // 2. 권한 검사: 리뷰 작성자와 현재 로그인한 사용자가 같은지 확인
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("리뷰를 수정할 권한이 없습니다.");
+        }
+
+        // 3. 내용 및 별점 업데이트
+        review.setContent(request.getContent());
+        review.setRating(request.getRating());
+
+        // @Transactional에 의해 메소드 종료 시 자동 flush (DB에 변경사항 반영)
+        // DTO로 변환하여 반환, 구매자 여부는 항상 true (작성자=구매자)
+        return new ReviewResponse(review, true);
+    }
+
+    // 리뷰 삭제
+    public void deleteReview(Long reviewId, User user) {
+        // 1. 삭제할 리뷰를 DB에서 조회
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("리뷰를 찾을 수 없습니다."));
+
+        // 2. 권한 검사
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("리뷰를 삭제할 권한이 없습니다.");
+        }
+
+        // 3. 리뷰 삭제
+        reviewRepository.delete(review);
+    }
+
+
 }
