@@ -6,6 +6,8 @@ import { useOrder } from '../hooks/useOrder';
 import { formatPrice } from '../constants/format';
 import api from '../api/config';
 
+import ProductReviews from '../components/ProductReviews';
+
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -18,6 +20,15 @@ export default function ProductDetail() {
   const token = user?.token;
   const navigate = useNavigate();
 
+  // --- 리뷰 관련 상태 ---
+  const [reviewsPage, setReviewsPage] = useState(null);
+  const [reviewCurrentPage, setReviewCurrentPage] = useState(0);
+  const [newReview, setNewReview] = useState({ rating: 5, content: '' });
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [version, setVersion] = useState(0);
+
+  // 1. 상품 정보 로딩 useEffect
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -36,6 +47,21 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+
+  // 2. 리뷰 목록 로딩 useEffect
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await api.get(`/api/products/${id}/reviews`, {
+          params: { page: reviewCurrentPage, size: 5 }
+        });
+        setReviewsPage(response.data);
+      } catch (err) {
+        console.error("리뷰 로딩 오류:", err);
+      }
+    };
+    fetchReviews();
+  }, [id, reviewCurrentPage, version]); // version이 바뀌면 리뷰 목록 새로고침
 
   const handleQuantityChange = (amount) => {
     const newQuantity = quantity + amount;
@@ -89,9 +115,46 @@ export default function ProductDetail() {
   };
 
   const handlePurchase = () => {
+    // 1. 로그인 여부 먼저 확인
+    if (!user?.token) {
+      alert("주문을 위해 로그인이 필요합니다.");
+      navigate('/login');
+      return;
+    }
+
+    // 2. 로그인 되어 있으면 구매 확인
     if (window.confirm("이 상품을 바로 구매하시겠습니까?")) {
       const orderItems = [{ productId: id, quantity: quantity }];
       createOrder(orderItems);
+    }
+  };
+
+  // --- 리뷰 작성 핸들러 ---
+  const handleReviewChange = (e) => {
+    setNewReview({ ...newReview, [e.target.name]: e.target.value });
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (newReview.content.trim() === '') {
+      setSubmitError("리뷰 내용을 입력해주세요.");
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    setSubmitError('');
+    try {
+      await api.post(`/api/products/${id}/reviews`, newReview, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      alert("리뷰가 성공적으로 등록되었습니다.");
+      setNewReview({ rating: 5, content: '' }); // 폼 초기화
+      setVersion(v => v + 1); // 리뷰 목록 새로고침
+    } catch (err) {
+      console.error("리뷰 등록 오류:", err);
+      setSubmitError(err.response?.data?.message || "리뷰 등록에 실패했습니다.");
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -117,6 +180,7 @@ export default function ProductDetail() {
           </ol>
         </nav>
 
+        {/* --- 1. 상품 상세 정보 --- */}
         <div className="lg:grid lg:grid-cols-5 lg:gap-x-12">
           {/* 상품 이미지 영역 */}
           <div className="lg:col-span-2">
@@ -188,6 +252,9 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* --- 2. 리뷰 섹션 --- */}
+      <ProductReviews productId={id} />
     </div>
   );
 }
