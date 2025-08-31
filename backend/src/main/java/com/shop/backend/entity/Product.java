@@ -44,6 +44,10 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private User createdBy;
 
+    // 낙관적 락(Optimistic Lock)을 위한 버전 필드
+    @Version
+    private Integer version;
+
     // 상품 등록
     public static Product createProduct(ProductRequest request, String imageUrl, User user) {
         return Product.builder()
@@ -73,6 +77,15 @@ public class Product {
     // 해당 상품의 소유자인지 확인
     public boolean isOwnedBy(User user) {
         return this.createdBy.getId().equals(user.getId());
+    }
+
+    // 주문 시 재고 수량 감소
+    public void removeStock(int quantity) {
+        int restStock = this.stock - quantity;
+        if (restStock < 0) {
+            throw new IllegalStateException("재고가 부족합니다.");
+        }
+        this.stock = restStock;
     }
 
 }
