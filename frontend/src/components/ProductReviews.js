@@ -17,6 +17,11 @@ export default function ProductReviews({ productId }) {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [version, setVersion] = useState(0);
+
+  // --- 수정 관련 상태 ---
+  const [editingReviewId, setEditingReviewId] = useState(null); // 현재 수정 중인 리뷰의 ID
+  const [editText, setEditText] = useState(''); // 수정 중인 리뷰의 텍스트
+  const [editRating, setEditRating] = useState(5); // 수정 중인 리뷰의 별점
   
   const { user, isLoggedIn } = useAuth();
   const token = user?.token;
@@ -96,6 +101,48 @@ export default function ProductReviews({ productId }) {
     }
   };
 
+  // 별점 수정 핸들러
+  const handleStartEdit = (review) => {
+    setEditingReviewId(review.reviewId);
+    setEditText(review.content);
+    setEditRating(review.rating);
+  };
+  
+  // 리뷰 작성 취소 핸들러
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+  };
+
+  // 리뷰 수정 핸들러
+  const handleUpdateReview = async (reviewId) => {
+    try {
+      await api.put(`/api/products/${productId}/reviews/${reviewId}`, 
+        { content: editText, rating: editRating },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      alert("리뷰가 수정되었습니다.");
+      setEditingReviewId(null);
+      setVersion(v => v + 1); // 목록 새로고침
+    } catch (err) {
+      alert("리뷰 수정에 실패했습니다.");
+    }
+  };
+
+  // 리뷰 삭제 핸들러
+  const handleDeleteReview = async (reviewId) => {
+    if (window.confirm("정말로 리뷰를 삭제하시겠습니까?")) {
+      try {
+        await api.delete(`/api/products/${productId}/reviews/${reviewId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        alert("리뷰가 삭제되었습니다.");
+        setVersion(v => v + 1); // 목록 새로고침
+      } catch (err) {
+        alert("리뷰 삭제에 실패했습니다.");
+      }
+    }
+  };
+
   const renderReviewForm = () => {
     if (!isLoggedIn) {
       // 1. 로그인 X
@@ -158,47 +205,82 @@ export default function ProductReviews({ productId }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">상품 리뷰</h2>
         
+        {/* 리뷰 작성 폼 (renderReviewForm 함수 호출 또는 직접 JSX 배치) */}
         {renderReviewForm()}
         
-        {isLoading ? <p>리뷰를 불러오는 중...</p> : 
-         error ? <p className="text-red-500">{error}</p> :
+        {/* --- 리뷰 목록 --- */}
+        {isLoading ? <p className="text-center py-10">리뷰를 불러오는 중...</p> : 
+         error ? <p className="text-center py-10 text-red-500">{error}</p> :
          reviewsPage && reviewsPage.content.length > 0 ? (
           <>
             <ul className="space-y-8">
-                {reviewsPage.content.map(review => (
-                    <li key={review.reviewId} className="flex items-start space-x-4">
-                    {/* 사용자 아바타 */}
-                    <div className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span className="text-lg font-semibold text-gray-600">
-                            {review.username.charAt(0).toUpperCase()}
-                        </span>
-                        </div>
+              {reviewsPage.content.map(review => (
+                <li key={review.reviewId} className="flex items-start space-x-4 p-4 rounded-lg transition-colors hover:bg-gray-50">
+                  {/* 사용자 아바타 */}
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                      <span className="text-lg font-semibold text-gray-600">
+                        {review.username.charAt(0).toUpperCase()}
+                      </span>
                     </div>
+                  </div>
 
-                    {/* 리뷰 내용 */}
-                    <div className="flex-grow">
-                        <div className="flex items-center justify-between">
-                        <div>
-                            <div className="flex items-center space-x-2">
-                                <p className="font-bold text-gray-900 text-lg">{review.username}</p>
-                                {review.purchased && (
-                                    <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                                        구매자
-                                    </span>
-                                )}
-                            </div>
+                  {/* 리뷰 내용 또는 수정 폼 */}
+                  <div className="flex-grow">
+                    {editingReviewId === review.reviewId ? (
+                      // --- 수정 모드 UI ---
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <p className="font-bold text-gray-900 text-lg">{review.username}</p>
                         </div>
-                        <p className="text-sm text-gray-500">{formatDate(review.createdAt)}</p>
+                        <StarRating rating={editRating} setRating={setEditRating} />
+                        <textarea 
+                          value={editText} 
+                          onChange={(e) => setEditText(e.target.value)} 
+                          rows="3" 
+                          className="w-full mt-2 p-2 border rounded-md focus:ring-2 focus:ring-blue-500" 
+                        />
+                        <div className="flex space-x-2 justify-end mt-2">
+                          <button onClick={handleCancelEdit} className="px-3 py-1 text-sm text-gray-600 rounded-md hover:bg-gray-200">취소</button>
+                          <button onClick={() => handleUpdateReview(review.reviewId)} className="px-3 py-1 text-sm font-bold text-white bg-blue-600 rounded-md hover:bg-blue-700">저장</button>
+                        </div>
+                      </div>
+                    ) : (
+                      // --- 일반 모드 UI ---
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <p className="font-bold text-gray-900 text-lg">{review.username}</p>
+                              {review.purchased && (
+                                <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                                  구매자
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <p className="text-sm text-gray-500">{formatDate(review.createdAt)}</p>
+                            {/* 수정/삭제 버튼을 날짜 옆에 고정 표시 */}
+                            {isLoggedIn && user.username === review.username && (
+                              <div className="flex space-x-2">
+                                <button onClick={() => handleStartEdit(review)} className="text-sm text-blue-600 hover:text-blue-800 font-medium">수정</button>
+                                <button onClick={() => handleDeleteReview(review.reviewId)} className="text-sm text-red-500 hover:text-red-700 font-medium">삭제</button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div className="my-1">
-                        <StarRating rating={review.rating} readOnly={true} />
+                          <StarRating rating={review.rating} readOnly={true} />
                         </div>
                         <p className="text-gray-700 mt-3 leading-relaxed">{review.content}</p>
-                    </div>
-                    </li>
-                ))}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              ))}
             </ul>
+
             {reviewsPage.totalPages > 1 && (
               <div className="mt-8">
                 <Pagination currentPage={currentPage} totalPages={reviewsPage.totalPages} onPageChange={handlePageChange} />
@@ -206,7 +288,7 @@ export default function ProductReviews({ productId }) {
             )}
           </>
         ) : (
-          <p className="text-gray-500">아직 등록된 리뷰가 없습니다.</p>
+          <p className="text-center py-10 text-gray-500">아직 등록된 리뷰가 없습니다.</p>
         )}
       </div>
     </div>
