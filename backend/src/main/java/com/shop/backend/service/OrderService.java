@@ -5,7 +5,10 @@ import com.shop.backend.dto.OrderRequest;
 import com.shop.backend.entity.*;
 import com.shop.backend.exception.ResourceNotFoundException;
 import com.shop.backend.repository.*;
+import com.shop.backend.response.OrderResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,5 +55,14 @@ public class OrderService {
                         .ifPresent(cartItemRepository::delete);
             }
         }
+    }
+
+    // 현재 로그인된 사용자의 주문 내역을 페이징하여 조회
+    public Page<OrderResponse> findMyOrders(User user, Pageable pageable) {
+        // 1. 리포지토리로부터 Page<Order> 엔티티를 조회한다
+        Page<Order> orderPage = orderRepository.findByUser(user, pageable);
+
+        // 2. Page.map 기능을 사용하여 Page<Order>를 Page<OrderResponse>로 변환한다
+        return orderPage.map(OrderResponse::new);
     }
 }
