@@ -3,6 +3,7 @@ import api from '../api/config';
 import { useAuth } from '../context/AuthContext';
 import Pagination from './Pagination';
 import { formatPrice, formatDate } from '../constants/format';
+import { Link } from 'react-router-dom';
 
 export default function MyOrders() {
     const [ordersPage, setOrdersPage] = useState(null);
@@ -71,6 +72,12 @@ export default function MyOrders() {
                                                 <p className="font-medium text-gray-800">{item.productName}</p>
                                                 <p className="text-sm text-gray-500">{formatPrice(item.orderPrice)}원 / {item.quantity}개</p>
                                             </div>
+                                            <Link 
+                                                to={`/products/${item.productId}`}
+                                                className="ml-auto bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 text-sm font-bold py-2 px-4 rounded-lg transition-colors flex-shrink-0"
+                                            >
+                                                리뷰 작성하기
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
