@@ -47,7 +47,8 @@ public class ProductController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Integer minPrice, // 최소 가격
             @RequestParam(required = false) Integer maxPrice, // 최대 가격
-            Pageable pageable) {
+            Pageable pageable
+    ) {
         Page<ProductResponse> products = productService.findAll(category, minPrice, maxPrice, pageable);
         return ResponseEntity.ok(products);
     }
@@ -58,4 +59,6 @@ public class ProductController {
         ProductResponse product = productService.findById(id);
         return ResponseEntity.ok(product);
     }
+
+
 }

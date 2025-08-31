@@ -7,7 +7,8 @@ import { CATEGORIES } from '../constants/options';
 export default function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { user } = useAuth();  // 인증 정보 가져오기
+  const token = user?.token;
 
   const [formData, setFormData] = useState({
     name: '',

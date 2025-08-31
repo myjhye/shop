@@ -57,6 +57,10 @@ public class User implements UserDetails {
         return passwordEncoder.matches(rawPassword, this.password);
     }
 
+    // 주문 목록
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders = new ArrayList<>();
+
 
 
     // --- Spring Security UserDetails 인터페이스 구현부 ---
