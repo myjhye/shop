@@ -101,5 +101,15 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
+    // 현재 로그인된 사용자가 작성한 리뷰 내역을 페이징하여 조회
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> findMyReviews(User user, Pageable pageable) {
+        // 1. 리포지토리로부터 Page<Review> 엔티티를 조회한다
+        Page<Review> reviewPage = reviewRepository.findByUser(user, pageable);
+
+        // 2. 각 리뷰에 대해 구매자 여부를 확인하고 DTO로 변환한다 (내가 쓴 리뷰는 내가 구매한 상품에 대한 것이므로, hasPurchased는 항상 true가 된다)
+        return reviewPage.map(review -> new ReviewResponse(review, true));
+    }
+
 
 }

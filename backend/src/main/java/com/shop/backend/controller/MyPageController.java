@@ -4,8 +4,10 @@ import com.shop.backend.dto.ProductRequest;
 import com.shop.backend.entity.User;
 import com.shop.backend.response.OrderResponse;
 import com.shop.backend.response.ProductResponse;
+import com.shop.backend.response.ReviewResponse;
 import com.shop.backend.service.OrderService;
 import com.shop.backend.service.ProductService;
+import com.shop.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ public class MyPageController {
 
     private final ProductService productService;
     private final OrderService orderService;
+    private final ReviewService reviewService;
 
     // 내가 등록한 상품 목록 조회
     @GetMapping("/products")
@@ -69,5 +72,15 @@ public class MyPageController {
     ) {
         Page<OrderResponse> myOrders = orderService.findMyOrders(user, pageable);
         return ResponseEntity.ok(myOrders);
+    }
+
+    // 내가 작성한 리뷰 조회
+    @GetMapping("/reviews")
+    public ResponseEntity<Page<ReviewResponse>> getMyReviews(
+            @AuthenticationPrincipal User user,
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<ReviewResponse> myReviews = reviewService.findMyReviews(user, pageable);
+        return ResponseEntity.ok(myReviews);
     }
 }
