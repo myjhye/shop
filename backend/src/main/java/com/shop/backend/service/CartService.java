@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -51,9 +53,16 @@ public class CartService {
 
     // 내 장바구니 조회
     public List<CartItemResponse> getCartItems(User user) {
-        Cart cart = cartRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("장바구니를 찾을 수 없습니다."));
+        // 1. 사용자의 장바구니를 Optional로 받는다
+        Optional<Cart> cartOptional = cartRepository.findByUser(user);
 
+        // 2. 장바구니가 존재하지 않으면, 빈 리스트를 반환한다
+        if (cartOptional.isEmpty()) {
+            return Collections.emptyList(); // new ArrayList<>() 와 동일
+        }
+
+        // 3. 장바구니가 존재하면, 해당 장바구니의 아이템 목록을 DTO로 변환하여 반환한다
+        Cart cart = cartOptional.get();
         return cart.getCartItems().stream()
                 .map(CartItemResponse::new)
                 .collect(Collectors.toList());
