@@ -1,8 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { NavCartIcon } from './Icons';
 
 export default function Navbar() {
   const { user, logout, isLoggedIn } = useAuth();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -30,31 +33,26 @@ export default function Navbar() {
             </Link>
             
             {isLoggedIn ? (
-              // 로그인된 상태
               <>
-                <Link
-                  to="/add-product"
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
-                >
-                  상품 등록
-                </Link>
-
-                <Link
-                  to="/mypage"
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
-                >
-                  마이페이지
-                </Link>
+                <Link to="/add-product" className="text-gray-700 hover:text-blue-600 px-3 py-2">상품 등록</Link>
+                <Link to="/mypage" className="text-gray-700 hover:text-blue-600 px-3 py-2">마이페이지</Link>
                 
-                <span className="text-gray-700 px-3 py-2 text-base">
+                <span className="text-gray-700 px-3 py-2">
                   안녕하세요, <span className="text-blue-500">{user?.username}</span>님
                 </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
-                >
+                <button onClick={handleLogout} className="text-gray-700 hover:text-blue-600 px-3 py-2">
                   로그아웃
                 </button>
+
+                {/* --- 3. 장바구니 아이콘 및 아이템 개수 배지 추가 --- */}
+                <Link to="/mypage?tab=cart" className="relative text-gray-500 hover:text-blue-600 p-2">
+                  <NavCartIcon />
+                  {itemCount > 0 && (
+                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                      {itemCount}
+                    </span>
+                  )}
+                </Link>
               </>
             ) : (
               // 로그인되지 않은 상태

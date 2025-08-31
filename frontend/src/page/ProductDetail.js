@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/config';
 import { CartIcon, MinusIcon, PlusIcon } from '../components/Icons';
-
-// 가격을 원화 형식으로 포맷하는 함수
-const formatPrice = (price) => {
-  if (typeof price !== 'number') return '';
-  return new Intl.NumberFormat('ko-KR').format(price);
-};
+import { useOrder } from '../hooks/useOrder';
+import { formatPrice } from '../constants/format';
+import api from '../api/config';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -16,6 +12,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1); // 수량
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { createOrder, isLoading: isOrderLoading } = useOrder();
 
   const { user, isLoggedIn } = useAuth();  // 인증 정보 가져오기
   const token = user?.token;
@@ -89,7 +86,14 @@ export default function ProductDetail() {
         </Link>
       </div>
     );
-  }
+  };
+
+  const handlePurchase = () => {
+    if (window.confirm("이 상품을 바로 구매하시겠습니까?")) {
+      const orderItems = [{ productId: id, quantity: quantity }];
+      createOrder(orderItems);
+    }
+  };
 
   if (!product) return null;
 
@@ -174,7 +178,8 @@ export default function ProductDetail() {
                 장바구니
               </button>
               <button
-                disabled={product.stock === 0}
+                onClick={handlePurchase} 
+                disabled={isOrderLoading}
                 className="flex items-center justify-center px-8 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gray-800 hover:bg-gray-900 disabled:bg-gray-400"
               >
                 바로 구매
