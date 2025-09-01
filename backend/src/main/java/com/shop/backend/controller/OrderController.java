@@ -5,6 +5,11 @@ import com.shop.backend.entity.Order;
 import com.shop.backend.entity.User;
 import com.shop.backend.response.OrderResponse;
 import com.shop.backend.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Tag(name = "Order", description = "주문 관련 API (인증 필요)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
@@ -22,10 +28,16 @@ public class OrderController {
     private final OrderService orderService;
 
     // --- 주문 생성 ---
+    @Operation(summary = "주문 생성", description = "장바구니 또는 상품 상세 페이지에서 상품을 주문합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "주문 성공"),
+        @ApiResponse(responseCode = "400", description = "재고 부족"),
+        @ApiResponse(responseCode = "409", description = "주문 충돌 발생 (동시성 문제)")
+    })
     @PostMapping
     public ResponseEntity<?> createOrder(
             @RequestBody OrderRequest orderRequest,
-            @AuthenticationPrincipal User user
+            @Parameter(hidden = true) @AuthenticationPrincipal User user
     ) {
         try {
             Order order = orderService.createOrder(orderRequest, user);
@@ -42,10 +54,11 @@ public class OrderController {
     }
 
     // --- 구매 이력 확인 ---
+    @Operation(summary = "상품 구매 이력 확인", description = "현재 로그인된 사용자가 특정 상품을 구매했는지 여부를 확인합니다.")
     @GetMapping("/check-purchase")
     public ResponseEntity<Map<String, Boolean>> checkPurchase(
-            @RequestParam Long productId,
-            @AuthenticationPrincipal User user
+        @Parameter(description = "확인할 상품 ID") @RequestParam Long productId,
+        @Parameter(hidden = true) @AuthenticationPrincipal User user
     ) {
         boolean hasPurchased = orderService.hasPurchaseHistory(user, productId);
         return ResponseEntity.ok(Map.of("hasPurchased", hasPurchased));
