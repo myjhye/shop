@@ -1,7 +1,6 @@
 # Backend (Spring Boot)
 backend/target/
 backend/.idea/
-backend/.env
 *.iml
 
 # Frontend (React)
@@ -13,3 +12,6 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 *.log
+
+# Environment variables
+/.env
