@@ -1,31 +1,11 @@
 # 최신 Docker Compose에서는 version 태그가 더 이상 필요하지 않습니다.
 services:
-  # --- 1. MySQL 데이터베이스 서비스 ---
-  db:
-    image: mysql:8.0
-    container_name: shop-mysql-db
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: shop
-      TZ: Asia/Seoul
-    ports:
-      - "3306:3306" # DB 관리 툴 등 외부에서 접속할 경우를 위해 열어둡니다.
-    volumes:
-      - db-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  # --- 2. 백엔드 Spring Boot 애플리케이션 서비스 ---
+  # --- 1. 백엔드 Spring Boot 애플리케이션 서비스 ---
   backend:
     build: ./backend # ./backend 경로의 Dockerfile을 사용하여 이미지를 빌드합니다.
     container_name: shop-backend-app
-    depends_on:
-      db:
-        condition: service_healthy # db 서비스의 healthcheck가 성공할 때까지 기다립니다.
+    env_file:
+      - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:mysql://shop-db.ct264oys8ts0.ap-northeast-2.rds.amazonaws.com:3306/shop?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
@@ -37,7 +17,7 @@ services:
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     # ports 항목은 Nginx를 통해서만 백엔드에 접근하므로 제거합니다.
 
-  # --- 3. 프론트엔드 React (Nginx) 웹 서버 서비스 ---
+  # --- 2. 프론트엔드 React (Nginx) 웹 서버 서비스 ---
   frontend:
     build: ./frontend # ./frontend 경로의 Dockerfile을 사용하여 이미지를 빌드합니다.
     container_name: shop-frontend-web
@@ -45,6 +25,3 @@ services:
       - backend
     ports:
       - "80:80" # 내 컴퓨터의 80번 포트(http 기본)를 Nginx의 80번 포트에 연결합니다.
-
-volumes:
-  db-data:
