@@ -3,6 +3,7 @@ import { getToken } from '../utils/auth';
 
 const api = axios.create({
   //baseURL: 'http://localhost:8080',
+  baseURL: '/api',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json'
