@@ -5,6 +5,8 @@ services:
   # --- 1. MySQL 데이터베이스 서비스 (EC2 내부에서 직접 실행) ---
   db:
     image: mysql:8.0
+    ports:
+      - "3307:3306" # EC2 서버의 3307번 포트를 컨테이너의 3306 포트로 연결
     container_name: shop-mysql-db-local
     restart: always
     environment:
