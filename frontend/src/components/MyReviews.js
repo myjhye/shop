@@ -52,6 +52,7 @@ export default function MyReviews() {
                                         <StarRating rating={review.rating} readOnly={true} />
                                         <span className="text-xs text-gray-500">{formatDate(review.createdAt)}</span>
                                     </div>
+                                    <h3 className="text-lg font-semibold text-gray-800 mt-1">{review.productName}</h3>
                                     <p className="mt-2 text-gray-700">{review.content}</p>
                                 </div>
                             </div>

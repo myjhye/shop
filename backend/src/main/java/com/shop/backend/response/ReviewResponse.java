@@ -12,6 +12,7 @@ public class ReviewResponse {
     private int rating;
     private LocalDateTime createdAt;
     private String productThumbnailUrl;
+    private String productName;
     private boolean purchased;
 
     public ReviewResponse(Review review, boolean purchased) {
@@ -21,6 +22,7 @@ public class ReviewResponse {
         this.rating = review.getRating();
         this.createdAt = review.getCreatedAt();
         this.productThumbnailUrl = review.getProduct().getThumbnail();
+        this.productName = review.getProduct().getName();
         this.purchased = purchased;
     }
 }
