@@ -85,7 +85,7 @@
 | | `Tailwind CSS` | UI 스타일링 |
 | **Backend** | `Spring Boot`, `Spring Data JPA` | REST API 서버 및 ORM |
 | | `Spring Security + JWT` | 인증/인가 |
-| | `MySQL (AWS RDS)` | 관계형 데이터베이스 |
+| | `MySQL` | 관계형 데이터베이스 |
 | | `Cloudinary` | 이미지 업로드 |
 | **DevOps** | `Docker`, `Docker Compose` | 컨테이너 기반 배포 |
 | | `Nginx` | 리버스 프록시 및 정적 파일 서빙 |
