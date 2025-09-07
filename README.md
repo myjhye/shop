@@ -1,4 +1,4 @@
-# E-commerce 플랫폼 프로젝트 (Spring Boot + React)
+# Shopping 플랫폼 프로젝트 (Spring Boot + React)
 
 <br>
 
