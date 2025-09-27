@@ -22,7 +22,7 @@ export default function MyProducts() {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await api.get('/api/mypage/products', {
+                const response = await api.get('/mypage/products', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
@@ -53,7 +53,7 @@ export default function MyProducts() {
         if (window.confirm("정말로 이 상품을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
             try {
                 // 2. 서버에 DELETE 요청 전송
-                await api.delete(`/api/mypage/products/${productId}`, {
+                await api.delete(`/mypage/products/${productId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 alert("상품이 성공적으로 삭제되었습니다.");

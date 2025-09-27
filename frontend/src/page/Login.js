@@ -29,7 +29,7 @@ export default function Login() {
     setError('');
 
     try {
-      const { data } = await api.post('/api/auth/login', {
+      const { data } = await api.post('/auth/login', {
         username: formData.username,
         password: formData.password
       });

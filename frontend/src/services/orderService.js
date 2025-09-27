@@ -3,7 +3,7 @@ import api from '../api/config';
 // 주문 생성 API 호출
 export const createOrder = async (orderItems, token) => {
   try {
-    const response = await api.post('/api/orders', 
+    const response = await api.post('/orders', 
       { orderItems }, // 요청 Body
       { headers: { 'Authorization': `Bearer ${token}` } }
     );

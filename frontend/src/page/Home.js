@@ -38,7 +38,7 @@ export default function Home() {
           }
         }
         
-        const response = await api.get('/api/products', { params });
+        const response = await api.get('/products', { params });
         setPageData(response.data);
       } 
       catch (err) {

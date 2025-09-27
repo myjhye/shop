@@ -27,7 +27,7 @@ export default function EditProduct() {
   useEffect(() => {
     const fetchProductData = async () => {
       try {
-        const response = await api.get(`/api/products/${id}`);
+        const response = await api.get(`/products/${id}`);
         const product = response.data;
         setFormData({
           name: product.name,
@@ -79,7 +79,7 @@ export default function EditProduct() {
         formDataToSend.append('thumbnail', thumbnail);
       }
 
-      await api.put(`/api/mypage/products/${id}`, formDataToSend, {
+      await api.put(`/mypage/products/${id}`, formDataToSend, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

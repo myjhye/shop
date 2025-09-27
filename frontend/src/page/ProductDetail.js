@@ -33,7 +33,7 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get(`/api/products/${id}`);
+        const response = await api.get(`/products/${id}`);
         setProduct(response.data);
       } 
       catch (err) {
@@ -52,7 +52,7 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await api.get(`/api/products/${id}/reviews`, {
+        const response = await api.get(`/products/${id}/reviews`, {
           params: { page: reviewCurrentPage, size: 5 }
         });
         setReviewsPage(response.data);
@@ -79,7 +79,7 @@ export default function ProductDetail() {
     }
 
     try {
-      await api.post('/api/cart/items', 
+      await api.post('/cart/items', 
         {
           productId: id,
           quantity: quantity,
@@ -144,7 +144,7 @@ export default function ProductDetail() {
     setIsSubmittingReview(true);
     setSubmitError('');
     try {
-      await api.post(`/api/products/${id}/reviews`, newReview, {
+      await api.post(`/products/${id}/reviews`, newReview, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       alert("리뷰가 성공적으로 등록되었습니다.");

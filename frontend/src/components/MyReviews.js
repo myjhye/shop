@@ -20,7 +20,7 @@ export default function MyReviews() {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await api.get('/api/mypage/reviews', {
+                const response = await api.get('/mypage/reviews', {
                     headers: { 'Authorization': `Bearer ${token}` },
                     params: { page: currentPage, size: 5 }
                 });

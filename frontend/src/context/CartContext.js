@@ -22,7 +22,7 @@ export const CartProvider = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get('/api/cart', {
+      const response = await api.get('/cart', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setCartItems(response.data);
@@ -38,7 +38,7 @@ export const CartProvider = ({ children }) => {
     if (newQuantity < 1) return;
     setUpdatingItems(prev => new Set(prev).add(cartItemId));
     try {
-      await api.put(`/api/cart/items/${cartItemId}`, { quantity: newQuantity }, {
+      await api.put(`/cart/items/${cartItemId}`, { quantity: newQuantity }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       await fetchCart(); // 성공 시 장바구니 전체를 다시 불러옴
@@ -56,7 +56,7 @@ export const CartProvider = ({ children }) => {
   const deleteCartItem = async (cartItemId) => {
     if (window.confirm("이 상품을 장바구니에서 삭제하시겠습니까?")) {
       try {
-        await api.delete(`/api/cart/items/${cartItemId}`, {
+        await api.delete(`/cart/items/${cartItemId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         await fetchCart(); // 성공 시 장바구니 전체를 다시 불러옴

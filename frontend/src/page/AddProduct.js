@@ -65,7 +65,7 @@ export default function AddProduct() {
       
       formDataToSend.append('thumbnail', thumbnail);
 
-      await api.post('/api/products', formDataToSend, {
+      await api.post('/products', formDataToSend, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

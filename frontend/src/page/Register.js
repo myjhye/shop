@@ -32,7 +32,7 @@ export default function Register() {
     setError('');
 
     try {
-      const { data } = await api.post('/api/auth/signup', {
+      const { data } = await api.post('/auth/signup', {
         username: formData.username,
         email: formData.email,
         password: formData.password

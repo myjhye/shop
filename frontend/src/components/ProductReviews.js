@@ -32,7 +32,7 @@ export default function ProductReviews({ productId }) {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/products/${productId}/reviews`, {
+        const response = await api.get(`/products/${productId}/reviews`, {
           params: { page: currentPage, size: 3, sort: 'createdAt,desc' }
         });
         setReviewsPage(response.data);
@@ -52,7 +52,7 @@ export default function ProductReviews({ productId }) {
       setIsCheckingPurchase(true);
       const checkPurchase = async () => {
         try {
-          const response = await api.get('/api/orders/check-purchase', {
+          const response = await api.get('/orders/check-purchase', {
             params: { productId },
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -88,7 +88,7 @@ export default function ProductReviews({ productId }) {
     setIsSubmittingReview(true);
     setSubmitError('');
     try {
-      await api.post(`/api/products/${productId}/reviews`, newReview, {
+      await api.post(`/products/${productId}/reviews`, newReview, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       alert("리뷰가 성공적으로 등록되었습니다.");
@@ -116,7 +116,7 @@ export default function ProductReviews({ productId }) {
   // 리뷰 수정 핸들러
   const handleUpdateReview = async (reviewId) => {
     try {
-      await api.put(`/api/products/${productId}/reviews/${reviewId}`, 
+      await api.put(`/products/${productId}/reviews/${reviewId}`, 
         { content: editText, rating: editRating },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -132,7 +132,7 @@ export default function ProductReviews({ productId }) {
   const handleDeleteReview = async (reviewId) => {
     if (window.confirm("정말로 리뷰를 삭제하시겠습니까?")) {
       try {
-        await api.delete(`/api/products/${productId}/reviews/${reviewId}`, {
+        await api.delete(`/products/${productId}/reviews/${reviewId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         alert("리뷰가 삭제되었습니다.");

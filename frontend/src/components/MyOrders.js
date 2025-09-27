@@ -20,7 +20,7 @@ export default function MyOrders() {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await api.get('/api/mypage/orders', {
+                const response = await api.get('/mypage/orders', {
                     headers: { 'Authorization': `Bearer ${token}` },
                     params: {
                         page: currentPage,
