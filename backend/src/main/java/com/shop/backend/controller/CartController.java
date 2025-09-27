@@ -19,7 +19,7 @@ import java.util.Map;
 @Tag(name = "Cart", description = "장바구니 관련 API (인증 필요)")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/cart")
+@RequestMapping("/cart")
 public class CartController {
 
     private final CartService cartService;

@@ -39,22 +39,22 @@ public class SecurityConfig {
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/products").authenticated()
+                        .requestMatchers("/mypage/**").authenticated()
+                        .requestMatchers("/cart/**").authenticated()
+                        .requestMatchers("/orders/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/{productId}/reviews").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products/{productId}/reviews").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/products/*/reviews/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/products/*/reviews/*").authenticated()
                         .requestMatchers(
                                 "/v3/api-docs/**",    // Swagger API docs
                                 "/swagger-ui/**",      // Swagger UI
                                 "/swagger-ui.html"     // Swagger UI main page
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/products").authenticated()
-                        .requestMatchers("/api/mypage/**").authenticated()
-                        .requestMatchers("/api/cart/**").authenticated()
-                        .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/{productId}/reviews").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/products/{productId}/reviews").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/products/*/reviews/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/*/reviews/*").authenticated()
                         // --------------------------------
 
                         .anyRequest().authenticated()
@@ -78,7 +78,7 @@ public class SecurityConfig {
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 

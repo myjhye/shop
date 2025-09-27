@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Product", description = "상품 관련 공용 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
 

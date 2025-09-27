@@ -27,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "MyPage", description = "마이페이지 관련 API (인증 필요)")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mypage")
+@RequestMapping("/mypage")
 public class MyPageController {
 
     private final ProductService productService;
