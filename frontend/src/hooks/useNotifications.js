@@ -27,6 +27,7 @@ export const useNotifications = (onNotificationReceived) => {
         }
 
         const wsUrl = process.env.REACT_APP_WEBSOCKET_URL;
+        console.log("👉 현재 환경변수에서 읽은 WebSocket URL:", wsUrl);
         console.log('✅ WebSocket 연결을 시도합니다...');
 
         // 3. STOMP 클라이언트 생성
