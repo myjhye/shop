@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 import java.util.Arrays;
 
@@ -31,12 +30,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        // GET /api/products/** 요청은 보안 필터를 아예 거치지 않도록 설정
-        return (web) -> web.ignoring().requestMatchers(HttpMethod.GET, "/api/products/**");
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -46,25 +39,24 @@ public class SecurityConfig {
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/products").authenticated()
-                        .requestMatchers("/api/mypage/**").authenticated()
-                        .requestMatchers("/api/cart/**").authenticated()
-                        .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/products/{productId}/reviews").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/products/*/reviews/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/*/reviews/*").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/products").authenticated()
+                        .requestMatchers("/mypage/**").authenticated()
+                        .requestMatchers("/cart/**").authenticated()
+                        .requestMatchers("/orders/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/products/{productId}/reviews").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/products/*/reviews/*").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/products/*/reviews/*").authenticated()
 
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/{productId}/reviews").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/{productId}/reviews").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",    // Swagger API docs
                                 "/swagger-ui/**",      // Swagger UI
                                 "/swagger-ui.html"     // Swagger UI main page
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // --------------------------------
 

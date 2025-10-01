@@ -24,7 +24,17 @@ public class ProductService {
     public ProductResponse create(ProductRequest request, MultipartFile thumbnailFile, User user) {
 
         String imageUrl = cloudinaryService.uploadFile(thumbnailFile); // Cloudinary에 이미지 업로드
-        Product product = Product.createProduct(request, imageUrl, user);
+
+        // Product.createProduct(...)를 사용하는 대신 직접 객체를 생성하고 값을 설정합니다.
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+        product.setDescription(request.getDescription());
+        product.setStock(request.getStock());
+        product.setCategory(request.getCategory());
+        product.setThumbnail(imageUrl);
+        product.setCreatedBy(user); // ⭐️⭐️⭐️ 이 한 줄이 모든 문제의 최종 해결책입니다.
+
         Product saved = productRepository.save(product);
 
         return new ProductResponse(
