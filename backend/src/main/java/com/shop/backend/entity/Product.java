@@ -42,7 +42,7 @@ public class Product {
     private LocalDateTime createdAt;
 
     // 다대일(N:1) 관계. 여러 상품(N)은 한 명의 사용자(1)에 의해 생성될 수 있다
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User createdBy;
 

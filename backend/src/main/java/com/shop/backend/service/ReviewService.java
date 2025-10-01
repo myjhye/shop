@@ -10,8 +10,11 @@ import com.shop.backend.repository.ProductRepository;
 import com.shop.backend.repository.ReviewRepository;
 
 import com.shop.backend.response.ReviewResponse;
+import com.shop.backend.response.NotificationResponse;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -26,6 +33,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 리뷰 생성
     public ReviewResponse createReview(Long productId, ReviewRequest request, User user) {
@@ -44,6 +52,38 @@ public class ReviewService {
         review.setRating(request.getRating());
 
         Review savedReview = reviewRepository.save(review);
+
+        User reviewWriter = user;
+        User productOwner = product.getCreatedBy();
+
+        // 본인 상품에 리뷰를 다는 경우를 제외하는 조건 확인
+        if (!productOwner.getId().equals(reviewWriter.getId())) {
+            log.info("✅ 조건 통과: 상품 소유자와 리뷰 작성자가 다릅니다. 알림 전송을 시도합니다.");
+            try {
+                String productOwnerUsername = productOwner.getUsername();
+
+                NotificationResponse notification = new NotificationResponse(
+                        "'" + product.getName() + "' 상품에 새로운 리뷰가 달렸습니다!",
+                        product.getId(),
+                        product.getName(),
+                        savedReview.getContent(),
+                        savedReview.getCreatedAt()
+                );
+
+                // 'hong'이라는 사용자를 찾는 대신, '/topic/notifications/hong' 이라는 주소로 직접 메시지를 보냅니다.
+                messagingTemplate.convertAndSend(
+                        "/topic/notifications/" + productOwnerUsername,
+                        notification
+                );
+                log.info("✅✅✅ `/topic/notifications/{}` 주소로 메시지 전송 성공! 수신자: '{}'", productOwnerUsername, productOwnerUsername);
+
+            } catch (Exception e) {
+                log.error("❌❌❌ 알림 전송 중 심각한 예외 발생: ", e);
+            }
+        } else {
+            log.warn("🟡 조건 실패: 상품 소유자와 리뷰 작성자가 동일하여 알림을 보내지 않습니다.");
+        }
+
         return new ReviewResponse(savedReview, hasPurchased);
     }
 
