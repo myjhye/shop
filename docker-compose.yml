@@ -22,6 +22,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - app-network
 
   # --- 2. 백엔드 Spring Boot 애플리케이션 서비스 ---
   backend:
@@ -44,6 +46,8 @@ services:
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    networks:
+      - app-network
 
   # --- 3. 프론트엔드 React (Nginx) 웹 서버 서비스 ---
   frontend:
@@ -54,7 +58,13 @@ services:
       - backend
     ports:
       - "80:80"
+    networks:
+      - app-network
 
 # MySQL 데이터베이스의 데이터를 영구적으로 보관하기 위한 볼륨 설정
 volumes:
   db-data:
+
+networks:
+  app-network:
+    driver: bridge
