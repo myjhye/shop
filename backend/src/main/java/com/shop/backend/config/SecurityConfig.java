@@ -43,11 +43,14 @@ public class SecurityConfig {
                         .requestMatchers("/mypage/**").authenticated()
                         .requestMatchers("/cart/**").authenticated()
                         .requestMatchers("/orders/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products/{productId}/reviews").permitAll()
                         .requestMatchers(HttpMethod.POST, "/products/{productId}/reviews").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/products/*/reviews/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/products/*/reviews/*").authenticated()
+
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/{productId}/reviews").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",    // Swagger API docs
                                 "/swagger-ui/**",      // Swagger UI
