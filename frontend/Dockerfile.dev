@@ -1,0 +1,17 @@
+# frontend/Dockerfile.dev (개발 전용 Dockerfile)
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+# setupProxy.js를 포함한 모든 소스 코드를 복사합니다.
+COPY . .
+
+EXPOSE 3000
+
+# 개발 서버를 실행합니다.
+CMD ["npm", "start"]
