@@ -21,11 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 클라이언트에서 WebSocket에 연결할 때 사용할 엔드포인트를 등록
         // "/ws"는 통신을 위한 초기 접속 경로
         // .withSockJS()는 WebSocket을 지원하지 않는 브라우저를 위한 폴백 옵션
-
-        // 클라이언트에서 WebSocket에 연결할 때 사용할 엔드포인트를 등록
-        registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000", "http://localhost")
-                .withSockJS();
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
     }
 
     @Override
