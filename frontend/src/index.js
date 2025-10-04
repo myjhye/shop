@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // 모든 Provider를 이곳, App 컴포넌트의 바깥으로 옮긴다
 root.render(
-  <React.StrictMode>
+  //<React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <NotificationProvider>
@@ -25,5 +25,5 @@ root.render(
         </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  //</React.StrictMode>
 );

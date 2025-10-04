@@ -39,6 +39,20 @@ public class SecurityConfig {
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // 👇 웹소켓 경로를 가장 먼저 허용해줍니다.
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/{productId}/reviews").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // --- 인증 필요한 경로들 ---
                         .requestMatchers(HttpMethod.POST, "/products").authenticated()
                         .requestMatchers("/mypage/**").authenticated()
                         .requestMatchers("/cart/**").authenticated()
@@ -46,20 +60,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/products/{productId}/reviews").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/products/*/reviews/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/products/*/reviews/*").authenticated()
-
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products/{productId}/reviews").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers(
-                                "/v3/api-docs/**",    // Swagger API docs
-                                "/swagger-ui/**",      // Swagger UI
-                                "/swagger-ui.html"     // Swagger UI main page
-                        ).permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // --------------------------------
-
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
