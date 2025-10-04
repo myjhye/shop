@@ -26,7 +26,10 @@ export const useNotifications = (onNotificationReceived) => {
             return;
         }
 
-        const wsUrl = process.env.REACT_APP_WEBSOCKET_URL;
+        const wsUrl = process.env.NODE_ENV === 'development'
+            ? 'http://localhost:8080/ws' // 개발(development) 모드일 때 사용할 주소
+            : process.env.REACT_APP_WEBSOCKET_URL; // 운영(production) 모드일 때 사용할 주소
+            
         console.log("👉 현재 환경변수에서 읽은 WebSocket URL:", wsUrl);
         console.log('✅ WebSocket 연결을 시도합니다...');
 
