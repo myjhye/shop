@@ -64,12 +64,19 @@ export default function NotificationBell() {
             {notifications.length > 0 ? (
               notifications.map(n => (
                 <li key={n.id} className="p-4 border-b border-gray-100 last:border-b-0 space-y-1">
-                  {/* ⭐️ 아래와 같이 내용을 추가하고 스타일을 적용합니다. */}
                   <p className="text-sm font-semibold text-gray-800">{n.message}</p>
                   <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded-md">"{n.content}"</p>
                   <div className="flex justify-between items-center text-xs text-gray-400 pt-1">
-                    {/* new Date()로 감싸고 toLocaleString()으로 보기 좋게 변환 */}
                     <span>{new Date(n.createdAt).toLocaleString()}</span>
+                    
+                    {/* ▼▼▼ 삭제 버튼 추가 ▼▼▼ */}
+                    <button
+                      onClick={() => removeNotification(n.id)}
+                      className="ml-4 px-2 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      삭제
+                    </button>
+                    {/* ▲▲▲ 삭제 버튼 추가 ▲▲▲ */}
                   </div>
                 </li>
               ))
