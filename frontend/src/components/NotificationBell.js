@@ -1,6 +1,7 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useRef } from 'react';
 import { useNotificationsContext } from '../context/NotificationContext';
 import { Transition } from '@headlessui/react';
+import useOnClickOutside from '../hooks/useOnClickOutside';
 
 export default function NotificationBell() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,9 @@ export default function NotificationBell() {
       markAllAsRead();
     }
   };
+
+  const modalRef = useRef();
+  useOnClickOutside(modalRef, () => setIsModalOpen(false));
 
   return (
     <>
@@ -42,7 +46,7 @@ export default function NotificationBell() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <div className="fixed bottom-28 right-8 w-80 max-h-[50vh] flex flex-col rounded-lg bg-white shadow-2xl border border-gray-200 z-50">
+        <div ref={modalRef} className="fixed bottom-28 right-8 w-80 max-h-[50vh] flex flex-col rounded-lg bg-white shadow-2xl border border-gray-200 z-50">
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
             <h3 className="font-bold text-lg">
               알림 목록 ({notifications.length})
