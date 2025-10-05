@@ -1,5 +1,3 @@
-// src/index.js (수정된 최종 코드)
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -10,6 +8,7 @@ import { CartProvider } from './context/CartContext';
 import { NotificationProvider } from './context/NotificationContext';
 
 import './index.css';
+import { StompProvider } from './context/StompContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -18,11 +17,13 @@ root.render(
   //<React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
-          <CartProvider>
-            <App />
-          </CartProvider>
-        </NotificationProvider>
+        <StompProvider>
+          <NotificationProvider>
+            <CartProvider>
+              <App />
+            </CartProvider>
+          </NotificationProvider>
+        </StompProvider>
       </AuthProvider>
     </BrowserRouter>
   //</React.StrictMode>
