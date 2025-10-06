@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { NavCartIcon } from './Icons';
+import { ChatIcon, NavCartIcon } from './Icons';
 
 export default function Navbar() {
   const { user, logout, isLoggedIn } = useAuth();
@@ -10,7 +10,6 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    alert('로그아웃 되었습니다.');
     navigate('/');
   };
 
@@ -44,7 +43,12 @@ export default function Navbar() {
                   로그아웃
                 </button>
 
-                {/* --- 3. 장바구니 아이콘 및 아이템 개수 배지 추가 --- */}
+                {/* --- 채팅 목록 아이콘 --- */}
+                <Link to="/chat" className="relative text-gray-500 hover:text-blue-600 p-2">
+                  <ChatIcon />
+                </Link>
+
+                {/* --- 장바구니 아이콘 --- */}
                 <Link to="/mypage?tab=cart" className="relative text-gray-500 hover:text-blue-600 p-2">
                   <NavCartIcon />
                   {itemCount > 0 && (

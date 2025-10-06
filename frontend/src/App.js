@@ -1,5 +1,3 @@
-// src/App.js (수정된 최종 코드)
-
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
@@ -11,6 +9,7 @@ import AddProduct from './page/AddProduct';
 import ProductDetail from './page/ProductDetail';
 import MyPage from './page/MyPage';
 import EditProduct from './page/EditProduct';
+import ChatPage from './page/ChatPage';
 
 export default function App() {
   return (
@@ -28,6 +27,8 @@ export default function App() {
           path="/cart"
           element={<Navigate to="/mypage?tab=cart" replace />}
         />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/chat/:roomId" element={<ChatPage />} />
       </Routes>
       <NotificationBell />
     </div>
