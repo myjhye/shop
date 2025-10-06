@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { CartIcon, MinusIcon, PlusIcon } from '../components/Icons';
+import { CartIcon, MinusIcon, PlusIcon, ChatIcon } from '../components/Icons';
 import { useOrder } from '../hooks/useOrder';
 import { formatPrice } from '../constants/format';
 import api from '../api/config';
@@ -24,8 +24,6 @@ export default function ProductDetail() {
   const [reviewsPage, setReviewsPage] = useState(null);
   const [reviewCurrentPage, setReviewCurrentPage] = useState(0);
   const [newReview, setNewReview] = useState({ rating: 5, content: '' });
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [submitError, setSubmitError] = useState('');
   const [version, setVersion] = useState(0);
 
   // 1. 상품 정보 로딩 useEffect
@@ -35,11 +33,11 @@ export default function ProductDetail() {
         setIsLoading(true);
         const response = await api.get(`/products/${id}`);
         setProduct(response.data);
-      } 
+      }
       catch (err) {
         console.error('상품 상세 정보 로딩 오류:', err);
         setError('상품을 찾을 수 없습니다.');
-      } 
+      }
       finally {
         setIsLoading(false);
       }
@@ -79,7 +77,7 @@ export default function ProductDetail() {
     }
 
     try {
-      await api.post('/cart/items', 
+      await api.post('/cart/items',
         {
           productId: id,
           quantity: quantity,
@@ -98,6 +96,34 @@ export default function ProductDetail() {
       alert(err.response?.data?.message || "장바구니 추가에 실패했습니다.");
     }
   };
+
+  // 채팅 시작 핸들러
+  const handleStartChat = async () => {
+    if (!isLoggedIn) {
+      alert('채팅을 시작하려면 로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      // 서버에 채팅방 생성을 요청하고, 기존 채팅방이 있으면 그 정보를 받음
+      const response = await api.post(
+        '/chat/rooms',
+        { productId: id },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const { roomId } = response.data; // 서버로부터 roomId를 받음
+      navigate(`/chat/${roomId}`); // 해당 채팅방으로 이동
+    }
+    catch (err) {
+      console.error('채팅방 생성/입장 오류:', err);
+      alert(err.response?.data?.message || '채팅방에 입장할 수 없습니다.');
+    }
+  };
+
 
   if (isLoading) {
     return <div className="text-center py-20">로딩 중...</div>;
@@ -129,38 +155,9 @@ export default function ProductDetail() {
     }
   };
 
-  // --- 리뷰 작성 핸들러 ---
-  const handleReviewChange = (e) => {
-    setNewReview({ ...newReview, [e.target.name]: e.target.value });
-  };
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    if (newReview.content.trim() === '') {
-      setSubmitError("리뷰 내용을 입력해주세요.");
-      return;
-    }
-
-    setIsSubmittingReview(true);
-    setSubmitError('');
-    try {
-      await api.post(`/products/${id}/reviews`, newReview, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      alert("리뷰가 성공적으로 등록되었습니다.");
-      setNewReview({ rating: 5, content: '' }); // 폼 초기화
-      setVersion(v => v + 1); // 리뷰 목록 새로고침
-    } catch (err) {
-      console.error("리뷰 등록 오류:", err);
-      setSubmitError(err.response?.data?.message || "리뷰 등록에 실패했습니다.");
-    } finally {
-      setIsSubmittingReview(false);
-    }
-  };
-
   if (!product) return null;
-
   const totalPrice = product.price * quantity;
+  const isMyProduct = user && product && user.id == product.createdById;
 
   return (
     <div className="bg-white">
@@ -204,13 +201,13 @@ export default function ProductDetail() {
                 <p>{product.description}</p>
               </div>
             </div>
-            
+
             <p className={`mt-4 text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
               재고: {product.stock > 0 ? `${product.stock}개 남음` : '품절'}
             </p>
 
             <hr className="my-8 border-gray-200" />
-            
+
             {/* 수량 선택 */}
             <div className="flex items-center space-x-4">
               <span className="font-medium text-gray-700">수량</span>
@@ -224,7 +221,7 @@ export default function ProductDetail() {
                 </button>
               </div>
             </div>
-            
+
             {/* 총 상품 금액 */}
             <div className="mt-8 flex justify-between items-center">
               <span className="text-xl font-medium text-gray-900">총 상품 금액</span>
@@ -232,22 +229,41 @@ export default function ProductDetail() {
             </div>
 
             {/* 구매 버튼 */}
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock === 0}
-                className="flex items-center justify-center px-8 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400"
-              >
-                <CartIcon />
-                장바구니
-              </button>
-              <button
-                onClick={handlePurchase} 
-                disabled={isOrderLoading}
-                className="flex items-center justify-center px-8 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gray-800 hover:bg-gray-900 disabled:bg-gray-400"
-              >
-                바로 구매
-              </button>
+            <div className="mt-10 flex flex-col gap-4">
+              {/* 첫 번째 줄: 장바구니, 바로 구매 */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={product.stock === 0}
+                  className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 disabled:bg-gray-400"
+                >
+                  <CartIcon />
+                  <span className="ml-2">장바구니</span>
+                </button>
+                <button
+                  onClick={handlePurchase}
+                  disabled={isOrderLoading || product.stock === 0}
+                  className="flex items-center justify-center rounded-md border border-transparent bg-gray-800 px-8 py-3 text-base font-medium text-white hover:bg-gray-900 disabled:bg-gray-400"
+                >
+                  바로 구매
+                </button>
+              </div>
+
+              {/* 두 번째 줄: 판매자와 채팅하기 */}
+              {isMyProduct ? (
+                <div className="flex w-full items-center justify-center rounded-md border border-gray-300 bg-gray-100 px-8 py-3 text-base font-medium text-gray-500 cursor-not-allowed">
+                  <ChatIcon />
+                  <span className="ml-2">내가 등록한 상품입니다</span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleStartChat}
+                  className="flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-3 text-base font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  <ChatIcon />
+                  <span className="ml-2">판매자와 채팅하기</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -15,4 +15,5 @@ public class ProductResponse {
     private String thumbnail;
     private String category;
     private LocalDateTime createdAt;
+    private final Long createdById;
 }
