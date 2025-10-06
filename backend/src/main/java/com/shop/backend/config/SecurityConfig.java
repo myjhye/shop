@@ -33,13 +33,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // 👇 웹소켓 경로를 가장 먼저 허용해줍니다.
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -60,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/products/{productId}/reviews").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/products/*/reviews/*").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/products/*/reviews/*").authenticated()
+                        .requestMatchers("/chat/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

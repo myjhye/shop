@@ -10,6 +10,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -38,6 +39,8 @@ public class StompHandler implements ChannelInterceptor {
                         Authentication auth = jwtProvider.getAuthentication(token);
                         SecurityContextHolder.getContext().setAuthentication(auth);
                         accessor.setUser(auth);
+
+                        Objects.requireNonNull(accessor.getSessionAttributes()).put("username", auth.getName());
 
                         // ⭐️ 핵심: Principal 이름 확인
                         log.info("✅ 웹소켓 인증 성공");
