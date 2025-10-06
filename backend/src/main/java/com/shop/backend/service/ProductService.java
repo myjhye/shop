@@ -45,7 +45,8 @@ public class ProductService {
                 saved.getStock(),
                 saved.getThumbnail(),
                 saved.getCategory(),
-                saved.getCreatedAt()
+                saved.getCreatedAt(),
+                saved.getCreatedBy().getId()
         );
     }
 
@@ -64,7 +65,8 @@ public class ProductService {
                 product.getStock(),
                 product.getThumbnail(),
                 product.getCategory(),
-                product.getCreatedAt()
+                product.getCreatedAt(),
+                product.getCreatedBy().getId()
         ));
     }
 
@@ -85,7 +87,8 @@ public class ProductService {
                 product.getStock(),
                 product.getThumbnail(),
                 product.getCategory(),
-                product.getCreatedAt()
+                product.getCreatedAt(),
+                product.getCreatedBy().getId()
         );
     }
 
@@ -100,7 +103,8 @@ public class ProductService {
                 product.getStock(),
                 product.getThumbnail(),
                 product.getCategory(),
-                product.getCreatedAt()
+                product.getCreatedAt(),
+                product.getCreatedBy().getId()
         ));
     }
 
@@ -135,7 +139,8 @@ public class ProductService {
                 updatedProduct.getStock(),
                 updatedProduct.getThumbnail(),
                 updatedProduct.getCategory(),
-                updatedProduct.getCreatedAt()
+                updatedProduct.getCreatedAt(),
+                product.getCreatedBy().getId()
         );
     }
 

@@ -36,6 +36,7 @@ export default function Login() {
 
       // Auth Context 상태 업데이트
       login({
+        id: data.id,
         token: data.token,
         username: data.username,
         email: data.email
