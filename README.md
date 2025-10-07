@@ -52,10 +52,15 @@
 - **JPA @Version 기반 동시성 제어**: 재고 1개 남은 상품 동시 주문 시 Race Condition 방지
 
 ### 리뷰 시스템
-- 리뷰 작성: 구매 이력 검증 후 작성 가능
-- 리뷰 조회: 페이징 처리된 리스트 제공
-- 리뷰 수정/삭제: 작성자 본인만 가능
+- 구매 이력 검증 후 리뷰 작성
+- 페이징 처리된 리뷰 목록 조회
+- 작성자 본인만 리뷰 수정/삭제
 - 마이페이지에서 내가 쓴 리뷰 조회
+
+### 실시간 채팅
+- **WebSocket(STOMP)을 이용한 구매자-판매자 간 실시간 메시지 통신**
+- StompHandler에서 JWT 토큰을 검증하여 인증된 사용자만 소켓 연결을 허용
+- 상품별로 채팅방을 생성하고, '내 채팅 목록'에서 참여 중인 모든 채팅방 조회
 
 <br>
 
@@ -83,8 +88,10 @@
 | | `Context API` | 인증/장바구니 전역 상태 관리 |
 | | `Axios` | 서버와의 HTTP 통신 |
 | | `Tailwind CSS` | UI 스타일링 |
+| | `@stomp/stompjs, sockjs-client` | WebSocket(STOMP) 클라이언트 |
 | **Backend** | `Spring Boot`, `Spring Data JPA` | REST API 서버 및 ORM |
 | | `Spring Security + JWT` | 인증/인가 |
+| | `Spring WebSocket` | STOMP 프로토콜 기반 실시간 통신 |
 | | `MySQL` | 관계형 데이터베이스 |
 | | `Cloudinary` | 이미지 업로드 |
 | **DevOps** | `Docker`, `Docker Compose` | 컨테이너 기반 배포 |
@@ -97,6 +104,9 @@
 ## 문제 해결 및 학습 경험 (Troubleshooting & Learnings)
 - **동시성 제어**  
   - 재고 수량 동시 차감 문제를 JPA `@Version`(Optimistic Lock)으로 해결
+- **WebSocket JWT 인증 연동**  
+  - HTTP API에 사용하던 JWT 인증 방식을 WebSocket 연결 시에도 적용
+  - StompHandler로 CONNECT 단계에서 토큰을 검증하고, 인증된 사용자만 세션을 연결하는 실시간 통신 채널 구축
 - **구매 검증 기반 리뷰 작성**  
   - 구매자만 리뷰 작성 가능하도록 Order 데이터 검증 로직 추가
 - **Docker 기반 배포 환경**  
